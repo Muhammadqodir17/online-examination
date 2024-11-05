@@ -5,12 +5,11 @@ from rest_framework import serializers
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ['id', 'user', 'name', ]
+        fields = ['id', 'name', ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['name'] = instance.get_name_display()
-        data['user'] = instance.user.username
         return data
 
 

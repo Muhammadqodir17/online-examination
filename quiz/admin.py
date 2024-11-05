@@ -52,10 +52,17 @@ class ResultAdmin(admin.ModelAdmin):
     list_filter = ['status_for_checked_or_unchecked', ]
 
 
+class QuestionTypeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', ]
+    list_display_links = ['id', 'name', ]
+    search_fields = ['id', 'name']
+    list_filter = ['name', ]
+
+
 admin.site.register(Subject)
 admin.site.register(Question, QuestionsAdmin)
 admin.site.register(Exam, ExamAdmin)
 admin.site.register(Result, ResultAdmin)
 admin.site.register(Answer, AnswersAdmin)
 admin.site.register(DefaultExam, DefaultExamAdmin)
-admin.site.register(QuestionType)
+admin.site.register(QuestionType, QuestionTypeAdmin)

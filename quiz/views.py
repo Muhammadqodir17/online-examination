@@ -99,10 +99,6 @@ class SubjectViewSet(ViewSet):
     @swagger_auto_schema(
         operation_description="Start Exam",
         operation_summary="Start Exam",
-        responses={
-            200: ResultSerializer(),
-            404: "Not Found"
-        },
         tags=['quiz']
     )
     def start_test(self, request, *args, **kwargs):
@@ -181,19 +177,22 @@ class SubjectViewSet(ViewSet):
                                                  f'You can see your result {default.mandat_data}'},
                                 status=status.HTTP_200_OK)
 
+            if result.total_questions == default.questions:
+                return Response(data={'message': f'You answered all the questions, '
+                                                 f'You can see your result {default.mandat_data}'})
+
             if answer_sheet is not None:
                 return Response(data={'message': 'You have already answered this question'},
                                 status=status.HTTP_400_BAD_REQUEST)
+
+            if question.question_type.id != request.data['question_type']:
+                return Response(data={'error': f'This question type is {question.question_type.id}'}, status=status.HTTP_400_BAD_REQUEST)
 
             if (request.data['question_type'] == 1
                     and int(request.data['answer']) > 4):
                 return Response(data={'error': 'You have to pick for 1 "A", 2 "B", 3 "C", 4 "D" '
                                                'and it has to be int(digit)'},
                                 status=status.HTTP_400_BAD_REQUEST)
-
-            if result.total_questions == default.questions:
-                return Response(data={'message': f'You answered all the questions, '
-                                                 f'You can see your result {default.mandat_data}'})
 
             if question.correct_answer == int(request.data['answer']):
                 result.correct_answers += 1
@@ -203,6 +202,10 @@ class SubjectViewSet(ViewSet):
                 result.total_questions += 1
                 result.save()
             serializer.save()
+
+            if result.total_questions == default.questions:
+                return Response(data={'message': f'You answered all the questions, '
+                                                 f'You can see your result {default.mandat_data}'})
 
             return Response(data={'message': 'Answer accepted'}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -231,7 +234,11 @@ class SubjectViewSet(ViewSet):
         if not exist_user.check_password(password):
             return Response(data={'error': 'Password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
 
-        exam = Exam.objects.filter(user_id=user.id).first()
+        exam = Exam.objects.filter(user__id=exist_user.id).first()
+
+        if exam is None:
+            return Response(data={'error': 'Exam not found'}, status=status.HTTP_404_NOT_FOUND)
+
         default = DefaultExam.objects.filter(subject=exam.subject).first()
 
         if datetime.now() < default.mandat_data:
