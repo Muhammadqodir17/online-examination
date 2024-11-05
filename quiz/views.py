@@ -178,7 +178,7 @@ class SubjectViewSet(ViewSet):
                                 status=status.HTTP_200_OK)
 
             if result.total_questions == default.questions:
-                return Response(data={'message': f'You answered all the questions, '
+                return Response(data={'message': f'You have answered all the questions, '
                                                  f'You can see your result {default.mandat_data}'})
 
             if answer_sheet is not None:
