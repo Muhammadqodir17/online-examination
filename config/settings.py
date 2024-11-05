@@ -151,6 +151,7 @@ BOT_ID = os.getenv('BOT_ID')
 CHAT_ID = os.getenv('CHAT_ID')
 TELEGRAM_API_URL = os.getenv('TELEGRAM_API_URL')
 
+
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
